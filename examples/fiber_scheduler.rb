@@ -1,21 +1,16 @@
 require 'benchmark'
-require 'async/scheduler'
+require 'fiber_scheduler'
 
 Benchmark.bm do |x|
-  x.report('async/scheduler') do
+  x.report('fiber_scheduler') do
     Thread.new do
-      scheduler = Async::Scheduler.new
-      Fiber.set_scheduler scheduler
+      Fiber.set_scheduler FiberScheduler.new
 
       3.times do
         Fiber.schedule do
-          # Instead of blocking while the response will be ready, the Fiber will invoke scheduler
-          # to add itself to the list of waiting fibers and transfer control to other fibers
           sleep 1
         end
       end
-
-      scheduler.run
     end.join
   end
 
