@@ -1,28 +1,240 @@
-import { CodeSurfer } from 'code-surfer'
-import { nightOwl } from '@code-surfer/themes'
+import { Notes, Steps } from "mdx-deck";
+import { CodeSurfer } from "code-surfer";
+import { nightOwl } from "@code-surfer/themes";
 import "prismjs/components/prism-ruby";
 
-export const theme = nightOwl
+export const theme = nightOwl;
 
 # Ruby Concurrency
 
 ---
 
-# Mostly Fibers
+# Only Ruby 3.0
+
+- Ractors (avoid the GVL)
+- Non-blocking Fibers (lightweight concurrency)
+
+<Notes>
+By the end, have a good grasp of how Ruby looks at concurrency and what Ruby 3 offers in the way of improvements.
+</Notes>
+
+---
+
+# But first, acronyms!
+
+## GIL, GVL, YARV, MRI, CRuby
+
+---
+
+# What is the GVL?
+
+- Global Virtual Machine Lock
+- One native thread executed at a time
+- Design detail of MRI
+
+<Notes>
+  - May be familiar with GIL
+  - Now GVL thanks to YARV (Yet Another Ruby VM), Ruby 1.9
+  - The Ruby interpreter is limited to one thread of execution, even on a multi-core processor
+  - Not all Ruby interpreters have this limitation, e.g. TruffleRuby, JRuby, etc.
+</Notes>
+
+---
+
+# GVL Pros
+
+- Faster single-thread execution
+- Easier integration of C libraries
+- Ease of implementation
+
+<Notes>
+  - If we can't interpret code in parallel, we don't need to worry about it!
+  - There are so many C Ruby extensions because that work can be run outside of the GVL, utilizing multi-core processors.
+</Notes>
+
+---
+
+# GVL Cons
+
+- **Concurrency is limited to blocking operations only**
+- No parallel execution of interpreted code
+
+<Notes>
+  - In other words, you cannot use Ruby Threads to execute interpreted code in parallel
+</Notes>
+
+---
+
+# Design Consequences
+
+- Focus on process utilization!
+- Spend less time waiting, more time doing.
+- Blocking I/O only.
+
+<Notes>
+  - Blocking I/O: anything that doesn't directly use CPU cycles from its thread, but instead delegates the work to an external process.
+  - e.g. HTTP requests, database queries, reading a file.
+</Notes>
+
+---
+
+# Basically, threads
 
 <CodeSurfer>
 
 ```rb
-def foo
-  "bar"
+%w[2.5 2.6 3.0].map do |v|
+  open("https://rubyapi.org/#{v}")
 end
 ```
 
-```rb
-def bar
-  "baz"
+```rb 2:4 title="Wrap each operation in a Thread"
+%w[2.5 2.6 3.0].map do |v|
+  Thread.new do
+    open("https://rubyapi.org/#{v}")
+  end
 end
+  .each(&:join)
+```
+
+```rb 6 title="Pause the main thread and wait for the Threads to finish"
+%w[2.5 2.6 3.0].map do |v|
+  Thread.new do
+    open("https://rubyapi.org/#{v}")
+  end
+end
+  .each(&:join)
 ```
 
 </CodeSurfer>
+
+---
+
+# What's going on here?
+
+- Preemption: OS handles scheduling automatically.
+- The cost? Context switching penalties.
+
+<Notes>
+  - We just tell Ruby to wait and it magically handles stuff for us.
+  - That's nice, but it puts the responsibility of thread management to the OS.
+  - A context switch is the process of storing the state of a process or thread, so that it can be restored and resume execution at a later point.
+</Notes>
+
+---
+
+# Enter: Fibers
+
+- Lighter-weight than Threads.
+- Cooperative, not preemptive.
+- No context switching.
+
+<Notes>
+  - Cooperative: control must be handled manually by the program by yielding control.
+</Notes>
+
+---
+
+# Fiber demo
+
+<CodeSurfer>
+
+```rb title="Create a new fiber within the current Thread"
+fac = Fiber.new do
+end
+```
+
+```rb title="Fill in the application logic"
+fac = Fiber.new do
+  n = 1
+
+  loop do
+    rst = (1..n).inject(:*)
+    n += 1
+  end
+end
+```
+
+```rb 6 title="Yield control to the main thread"
+fac = Fiber.new do
+  n = 1
+
+  loop do
+    rst = (1..n).inject(:*)
+    Fiber.yield(rst)
+    n += 1
+  end
+end
+```
+
+```rb title="Resume at the point where the last yield was called"
+fac = Fiber.new do
+  n = 1
+
+  loop do
+    rst = (1..n).inject(:*)
+    Fiber.yield(rst)
+    n += 1
+  end
+end
+
+fac.resume
+# 1
+```
+
+```rb title="Resume at the point where the last yield was called"
+fac = Fiber.new do
+  n = 1
+
+  loop do
+    rst = (1..n).inject(:*)
+    Fiber.yield(rst)
+    n += 1
+  end
+end
+
+fac.resume
+# 1
+fac.resume
+# 2
+```
+
+```rb title="Resume at the point where the last yield was called"
+fac = Fiber.new do
+  n = 1
+
+  loop do
+    rst = (1..n).inject(:*)
+    Fiber.yield(rst)
+    n += 1
+  end
+end
+
+fac.resume
+# 1
+fac.resume
+# 2
+fac.resume
+# 6
+```
+
+</CodeSurfer>
+
+---
+
+# Yeah, but what about concurrency?
+
+1. When a Fiber hits a blocking operation, yield the I/O
+2. When the I/O is ready, resume the Fiber
+3. ???
+4. Profit
+
+<Notes>
+  - When a Fiber hits a blocking operation, we yield the I/O we're waiting for.
+  - When it's ready, we resume the Fiber and continue where we leave off.
+</Notes>
+
+---
+
+# Rad, but what about existing code?
 
