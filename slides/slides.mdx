@@ -131,11 +131,14 @@ end
 
 <Notes>
   - Cooperative: control must be handled manually by the program by yielding control.
+  - Fiber overhead is lower so you can run more of them.
+  - Previously, rarely used since you have to manually write scheduling logic.
+  - Ruby 3.0 introduces a scheduling interface that allows the runtime to manage Fibers more easily, opening them to broader use.
 </Notes>
 
 ---
 
-# Fiber demo
+# What is a Fiber?
 
 <CodeSurfer>
 
@@ -224,7 +227,7 @@ fac.resume
 
 # Yeah, but what about concurrency?
 
-1. When a Fiber hits a blocking operation, yield the I/O
+1. When a Fiber hits a blocking operation, yield control to other Fibers
 2. When the I/O is ready, resume the Fiber
 3. ???
 4. Profit
@@ -236,5 +239,81 @@ fac.resume
 
 ---
 
-# Rad, but what about existing code?
+# Fibers have been around since forever
 
+<Notes>
+  - Fibers are not a new Ruby primitive.
+</Notes>
+
+---
+
+# Ruby 3.0 introduces Fiber::SchedulerInterface
+
+https://bugs.ruby-lang.org/issues/16786
+
+<Notes>
+  - Introduces non-blocking Fibers
+  - Ruby stdlib blocking I/O is now Fiber-aware
+  - Scheduler handles yielding/resuming of Fibers
+</Notes>
+
+---
+
+# BYOSI
+
+Bring Your Own Scheduling Interface
+
+---
+
+# Non-blocking Fibers
+
+<CodeSurfer>
+
+```rb
+%w[pikachu squirtle].each do |name|
+  URI.open "https://pokeapi.co/api/v2/pokemon/#{name}"
+end
+```
+
+```rb title="Run the block in a non-blocking Fiber"
+%w[pikachu squirtle].each do |name|
+  Fiber.schedule do
+    URI.open "https://pokeapi.co/api/v2/pokemon/#{name}"
+  end
+end
+```
+
+```rb title="Bring in a Fiber Scheduler"
+require "fiber_scheduler"
+
+Fiber.set_scheduler FiberScheduler.new
+
+%w[pikachu squirtle].each do |name|
+  Fiber.schedule do
+    URI.open "https://pokeapi.co/api/v2/pokemon/#{name}"
+  end
+end
+```
+
+```rb 1,3,5,7,9 title="Or, use a dedicated gem"
+require "async"
+
+Async.do |task|
+  %w[pikachu squirtle].each do |name|
+    task.async do
+      URI.open "https://pokeapi.co/api/v2/pokemon/#{name}"
+    end
+  end
+end
+```
+
+</CodeSurfer>
+
+---
+
+# Summarized, Why Fibers?
+
+- Lighter-weight than Threads
+- Spin up more Fibers on the same system
+- Less context switching
+- SchedulerInterface = Ruby stdlib compatibility

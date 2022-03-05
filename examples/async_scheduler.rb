@@ -19,6 +19,16 @@ Benchmark.bm do |x|
     end.join
   end
 
+  x.report('blocking fibers') do
+    Thread.new do
+      3.times.map do
+        Fiber.new do
+          sleep 1
+        end
+      end.each(&:resume)
+    end.join
+  end
+
   x.report('sync') do
     3.times do
       sleep 1
