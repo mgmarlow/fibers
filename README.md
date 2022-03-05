@@ -1,5 +1,7 @@
 # Fibers
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ad8466d0-4e34-46f0-b6b4-50b91a1f2981/deploy-status)](https://app.netlify.com/sites/elegant-blackwell-f11d7c/deploys)
+
 The introduction of non-blocking Fibers in Ruby 3 marks an exciting milestone for the future of Ruby concurrency. This project serves as an introduction and a reference for those looking to understand more about Fibers and how Ruby (specifically, MRI) handles concurrency.
 
 ## Run the examples
