@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "mdx-deck slides.mdx",
-    "build": "mdx-deck build slides.mdx"
+    "build": "mdx-deck build slides.mdx && mv public ../docs/"
   },
   "dependencies": {
     "@code-surfer/themes": "^3.1.1",
