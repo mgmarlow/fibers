@@ -2,7 +2,7 @@ require 'benchmark'
 require 'async/scheduler'
 
 Benchmark.bm do |x|
-  x.report do
+  x.report('async/scheduler') do
     Thread.new do
       scheduler = Async::Scheduler.new
       Fiber.set_scheduler scheduler
@@ -19,7 +19,7 @@ Benchmark.bm do |x|
     end.join
   end
 
-  x.report do
+  x.report('sync') do
     3.times do
       sleep 1
     end
