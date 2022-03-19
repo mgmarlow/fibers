@@ -2,6 +2,7 @@ import { Notes, Steps } from "mdx-deck";
 import { CodeSurfer } from "code-surfer";
 import { nightOwl } from "@code-surfer/themes";
 import "prismjs/components/prism-ruby";
+import ioChanges from './io-changes.png'
 
 export const theme = nightOwl;
 
@@ -356,6 +357,19 @@ end
 
 - Bring Your Own Scheduling Interface
 - Ruby stdlib doesn't provide one by default
+- [Fiber::SchedulerInterface](https://ruby-doc.org/core-3.1.1/Fiber/SchedulerInterface.html)
+
+<Notes>
+  - Even though Ruby doesn't provide one out of the box, non-blocking Fibers are supported by the Ruby stdlib, meaning most stdlib functions call out to schedulers on blocking i/o.
+</Notes>
+
+---
+
+# What about existing code?
+
+---
+
+<img src={ioChanges} />
 
 ---
 
@@ -365,3 +379,29 @@ end
 - Spin up more Fibers on the same system
 - Less context switching
 - SchedulerInterface = Ruby stdlib compatibility
+
+---
+
+# Rails?
+
+- ActiveRecord is a problem
+- [Make ActiveRecord::ConnectionPool Fiber-safe](https://github.com/rails/rails/pull/44219)
+- Lots of code still dependent on Threads
+
+---
+
+# Better support for fiber-aware servers
+
+<CodeSurfer>
+
+```rb
+config.active_support.isolation_level = :fiber
+```
+
+</CodeSurfer>
+
+---
+
+# References
+
+Check out the [README](https://github.com/mgmarlow/fibers#readme)
