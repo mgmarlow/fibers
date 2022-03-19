@@ -5,24 +5,30 @@ import "prismjs/components/prism-ruby";
 
 export const theme = nightOwl;
 
-# Ruby Concurrency
+# Ruby 3+ Concurrency
+
+- How does Ruby handle Concurrency?
+- Why is Ruby 3+ an improvement?
 
 ---
 
-# Only Ruby 3.0
+# All of the acronyms
 
-- Ractors (avoid the GVL)
-- Non-blocking Fibers (lightweight concurrency)
-
-<Notes>
-By the end, have a good grasp of how Ruby looks at concurrency and what Ruby 3 offers in the way of improvements.
-</Notes>
-
----
-
-# But first, acronyms!
-
-## GIL, GVL, YARV, MRI, CRuby
+<div style={{ display: 'flex' }}>
+  <div>
+    <ul>
+      <li><b>GIL</b>: Global Interpreter Lock</li>
+      <li><b>GVL</b>: Global VM Lock</li>
+      <li><b>I/O</b>: Input/Output</li>
+    </ul>
+  </div>
+  <div>
+    <ul>
+      <li><b>YARV</b>: Yet Another Ruby VM</li>
+      <li><b>MRI</b>: Matz's Ruby Interpreter</li>
+    </ul>
+  </div>
+</div>
 
 ---
 
@@ -62,6 +68,36 @@ By the end, have a good grasp of how Ruby looks at concurrency and what Ruby 3 o
 <Notes>
   - In other words, you cannot use Ruby Threads to execute interpreted code in parallel
 </Notes>
+
+---
+
+# No parallel execution of interpreted code
+
+<CodeSurfer>
+
+```rb
+def fib(n) =
+  n < 2 ? n : fib(n-1) + fib(n-2)
+```
+
+```rb 4 title="Run 4 times, sequentially"
+def fib(n) =
+  n < 2 ? n : fib(n-1) + fib(n-2)
+
+4.times { fib(24) }
+```
+
+```rb 4:7 title="Still running 4 times sequentially"
+def fib(n) =
+  n < 2 ? n : fib(n-1) + fib(n-2)
+
+4.times.map do
+  Thread.new { fib(24) }
+end
+  .each(&:join)
+```
+
+</CodeSurfer>
 
 ---
 
@@ -112,8 +148,17 @@ end
 
 # What's going on here?
 
-- Preemption: OS handles scheduling automatically.
-- The cost? Context switching penalties.
+- API calls are blocking I/O
+- Ruby freely switches threads when blocked
+- `Thread#join` waits until everything finishes
+
+---
+
+# Threads are preemptive
+
+- Programmers don't handle scheduling, Ruby does
+- More accurately, Ruby lets the OS handle scheduling
+- The cost? Context switching penalties
 
 <Notes>
   - We just tell Ruby to wait and it magically handles stuff for us.
@@ -125,9 +170,9 @@ end
 
 # Enter: Fibers
 
-- Lighter-weight than Threads.
-- Cooperative, not preemptive.
-- No context switching.
+- Lighter-weight than Threads
+- Cooperative, not preemptive
+- No context switching
 
 <Notes>
   - Cooperative: control must be handled manually by the program by yielding control.
@@ -239,29 +284,19 @@ fac.resume
 
 ---
 
-# Fibers have been around since forever
+# Ruby Fibers are not a new thing
+
+---
+
+# Ruby 3 introduces Non-blocking Fibers
+
+[Original feature request](https://bugs.ruby-lang.org/issues/16786)
 
 <Notes>
   - Fibers are not a new Ruby primitive.
-</Notes>
-
----
-
-# Ruby 3.0 introduces Fiber::SchedulerInterface
-
-https://bugs.ruby-lang.org/issues/16786
-
-<Notes>
-  - Introduces non-blocking Fibers
   - Ruby stdlib blocking I/O is now Fiber-aware
   - Scheduler handles yielding/resuming of Fibers
 </Notes>
-
----
-
-# BYOSI
-
-Bring Your Own Scheduling Interface
 
 ---
 
@@ -308,6 +343,13 @@ end
 ```
 
 </CodeSurfer>
+
+---
+
+# BYOSI
+
+- Bring Your Own Scheduling Interface
+- Ruby stdlib doesn't provide one by default
 
 ---
 
