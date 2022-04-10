@@ -20,3 +20,4 @@
 
 - **Non-blocking Fiber**: A concept introduced in Ruby 3.0. When reaching an operation that would normally block a Fiber, e.g. sleep, the Fiber will instead yield control to other Fibers and allow the Fiber Scheduler to handle blocking/resuming the original Fiber when it can proceed.
 
+- **Processes vs. Threads**: "The primary difference between using processes versus threads is the way that memory is handled. At a high level, processes copy memory, while threads share memory. This makes process spawning slower than thread spawning, and leads to processes consuming more resources once running. Overall, threads incur less overhead than processes." -Jesse Storimer.

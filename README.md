@@ -21,3 +21,4 @@ bundle exec ruby examples/fib.rb
 - Watch Samuel William's RubyKaigi talk on [Scalable Concurrency for Ruby 3](https://youtu.be/Y29SSOS4UOc).
 - Bruno Sutic has two great posts about the [Ruby Fiber Scheduler](https://brunosutic.com/blog/ruby-fiber-scheduler) and the [Async Ruby](https://brunosutic.com/blog/async-ruby) gem.
 - Samuel Williams original feature request: [Light-weight scheduler for improved concurrency](https://bugs.ruby-lang.org/issues/16786).
+- [Working with Ruby Threads](https://workingwithruby.com/wwrt/), a fantastic book by Jesse Storimer on Ruby threads.

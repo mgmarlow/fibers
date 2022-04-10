@@ -44,6 +44,7 @@ export const theme = nightOwl;
   - Now GVL thanks to YARV (Yet Another Ruby VM), Ruby 1.9
   - The Ruby interpreter is limited to one thread of execution, even on a multi-core processor
   - Not all Ruby interpreters have this limitation, e.g. TruffleRuby, JRuby, etc.
+  - When you spin up a bunch of threads in an MRI process and one of those threads wants to interpret some Ruby code, it needs to hold onto the GVL. Only one thread can hold onto the GVL at any given time, so all of the other threads need to wait their turn.
 </Notes>
 
 ---
@@ -52,7 +53,7 @@ export const theme = nightOwl;
 
 - Faster single-thread execution
 - Easier integration of C libraries
-- Ease of implementation
+- Protect MRI from race conditions
 
 <Notes>
   - If we can't interpret code in parallel, we don't need to worry about it!
@@ -65,6 +66,7 @@ export const theme = nightOwl;
 
 - **Concurrency is limited to blocking operations only**
 - No parallel execution of interpreted code
+- Still doesn't guarantee thread-safe code
 
 <Notes>
   - In other words, you cannot use Ruby Threads to execute interpreted code in parallel
@@ -72,7 +74,7 @@ export const theme = nightOwl;
 
 ---
 
-# No parallel execution of interpreted code
+# Concurrent, not parallel
 
 <CodeSurfer>
 
@@ -171,7 +173,12 @@ end
   - We just tell Ruby to wait and it magically handles stuff for us.
   - That's nice, but it puts the responsibility of thread management to the OS.
   - A context switch is the process of storing the state of a process or thread, so that it can be restored and resume execution at a later point.
+  - More threads isn't necessarily faster! There's a tradeoff between process overhead and concurrency.
 </Notes>
+
+---
+
+# Demo: Thread Safety
 
 ---
 
