@@ -20,7 +20,6 @@ class FileUploader
     threads.each(&:join)
   end
 
-  # CAUTION: This isn't thread-safe!
   def results
     @results ||= Queue.new
   end
