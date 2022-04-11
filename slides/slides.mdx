@@ -45,6 +45,14 @@ export const theme = nightOwl;
   </div>
 </div>
 
+<Notes>
+  - GIL: a global lock that limits the Ruby interpreter to one thread of execution.
+  - IO: interaction between the computer and the outside world. We're concerned with blocking IO in this talk.
+  - Blocking I/O: anything that doesn't directly use CPU cycles from its thread, but instead delegates the work to an external process.
+  - YARV interprets Ruby code as YARV instructions, ultimately brining some real performance improvements over MRI. Ruby 1.9.
+  - There are other Ruby implementations, e.g. JRuby which uses the Java VM, or TruffleRuby which uses GraalVM.
+</Notes>
+
 ---
 
 # What is the GVL?
@@ -54,11 +62,9 @@ export const theme = nightOwl;
 - Design detail of MRI
 
 <Notes>
-  - May be familiar with GIL
-  - Now GVL thanks to YARV (Yet Another Ruby VM), Ruby 1.9
   - The Ruby interpreter is limited to one thread of execution, even on a multi-core processor
-  - Not all Ruby interpreters have this limitation, e.g. TruffleRuby, JRuby, etc.
   - When you spin up a bunch of threads in an MRI process and one of those threads wants to interpret some Ruby code, it needs to hold onto the GVL. Only one thread can hold onto the GVL at any given time, so all of the other threads need to wait their turn.
+  - Not all Ruby interpreters have this limitation, e.g. TruffleRuby, JRuby, etc.
 </Notes>
 
 ---
@@ -171,7 +177,7 @@ end
 
 # What's going on here?
 
-- API calls are blocking I/O
+- HTTP requests are blocking I/O
 - Ruby freely switches threads when blocked
 - `Thread#join` waits until everything finishes
 
@@ -184,8 +190,8 @@ end
 - The cost? Context switching penalties
 
 <Notes>
-  - We just tell Ruby to wait and it magically handles stuff for us.
-  - That's nice, but it puts the responsibility of thread management to the OS.
+  - Preemption = thread management is the responsibility of the OS.
+  - The OS is generally really good at this, but it is not deterministic and comes with the overhead of context switching.
   - A context switch is the process of storing the state of a process or thread, so that it can be restored and resume execution at a later point.
   - More threads isn't necessarily faster! There's a tradeoff between process overhead and concurrency.
 </Notes>
@@ -204,10 +210,14 @@ end
 
 <Notes>
   - Cooperative: control must be handled manually by the program by yielding control.
+  - Influenced by Lua coroutines.
   - Fiber overhead is lower so you can run more of them.
   - Previously, rarely used since you have to manually write scheduling logic.
-  - Ruby 3.0 introduces a scheduling interface that allows the runtime to manage Fibers more easily, opening them to broader use.
 </Notes>
+
+---
+
+# Ruby Fibers are not a new thing
 
 ---
 
@@ -309,10 +319,6 @@ fac.resume
   - When a Fiber hits a blocking operation, we yield the I/O we're waiting for.
   - When it's ready, we resume the Fiber and continue where we leave off.
 </Notes>
-
----
-
-# Ruby Fibers are not a new thing
 
 ---
 

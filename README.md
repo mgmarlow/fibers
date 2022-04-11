@@ -22,3 +22,4 @@ bundle exec ruby examples/fib.rb
 - Bruno Sutic has two great posts about the [Ruby Fiber Scheduler](https://brunosutic.com/blog/ruby-fiber-scheduler) and the [Async Ruby](https://brunosutic.com/blog/async-ruby) gem.
 - Samuel Williams original feature request: [Feature #16786: Light-weight scheduler for improved concurrency](https://bugs.ruby-lang.org/issues/16786).
 - [Working with Ruby Threads](https://workingwithruby.com/wwrt/), a fantastic book by Jesse Storimer on Ruby threads.
+- [Concurrency is not Parallelism - Rob Pike](https://blog.heroku.com/concurrency_is_not_parallelism)
