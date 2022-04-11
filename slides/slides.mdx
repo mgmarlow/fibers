@@ -13,6 +13,20 @@ export const theme = nightOwl;
 
 ---
 
+# History of Rack web servers
+
+- Unicorn -> Puma (or Passenger)
+- Shift from multi-process to multi-threaded
+- Better I/O bound performance (read: Rails)
+
+<Notes>
+  - Rails has a history of running on process-based web servers like Unicorn.
+  - Not going to get into the pros/cons of process vs. threads here, but generally speaking multi-threaded is better for IO bound services.
+  - IO bound vs. CPU bound: time spent on blocking I/O vs. time spent on CPU processing.
+</Notes>
+
+---
+
 # All of the acronyms
 
 <div style={{ display: 'flex' }}>
