@@ -32,19 +32,18 @@ end
 # Try to reproduce the race condition. Test is flaky.
 class TestFileUploader < Minitest::Test
   def setup
-    # 20 files, 20 threads
-    @files = (0..20).inject({}) do |hsh, i|
-      hsh["boots#{i}.png"] = '*pretend png data*'
-      hsh["shirts#{i}.png"] = '*pretend png data*'
+    # 40 files, 40 threads
+    @files = (0...40).inject({}) do |hsh, i|
+      hsh["my_file#{i}.png"] = '*pretend png data*'
       hsh
     end
   end
 
-  def test_that_size_is_always_42
-    100.times do
+  def test_that_size_is_always_40
+    1000.times do
       uploader = FileUploader.new(@files)
       uploader.upload
-      assert_equal 42, uploader.results.size
+      assert_equal 40, uploader.results.size
     end
   end
 end
