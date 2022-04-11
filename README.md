@@ -17,8 +17,8 @@ bundle exec ruby examples/fib.rb
 ## Notes and references
 
 - View the [glossary](./glossary.md).
-- Ruby does not ship with a default implementation of the [`Fiber::SchedulerInterface`](https://docs.ruby-lang.org/en/master/Fiber/SchedulerInterface.html). Samuel William offers a great reference implementation: [async gem](https://github.com/socketry/async/blob/main/lib/async/scheduler.rb).
-- Watch Samuel William's RubyKaigi talk on [Scalable Concurrency for Ruby 3](https://youtu.be/Y29SSOS4UOc).
+- [Samuel Williams's](https://github.com/ioquatix) implementation of [`Fiber::SchedulerInterface`](https://docs.ruby-lang.org/en/master/Fiber/SchedulerInterface.html) in async: [async/scheduler](https://github.com/socketry/async/blob/main/lib/async/scheduler.rb).
+- Watch Samuel Williams's RubyKaigi talk on [Scalable Concurrency for Ruby 3](https://youtu.be/Y29SSOS4UOc).
 - Bruno Sutic has two great posts about the [Ruby Fiber Scheduler](https://brunosutic.com/blog/ruby-fiber-scheduler) and the [Async Ruby](https://brunosutic.com/blog/async-ruby) gem.
-- Samuel Williams original feature request: [Light-weight scheduler for improved concurrency](https://bugs.ruby-lang.org/issues/16786).
+- Samuel Williams original feature request: [Feature #16786: Light-weight scheduler for improved concurrency](https://bugs.ruby-lang.org/issues/16786).
 - [Working with Ruby Threads](https://workingwithruby.com/wwrt/), a fantastic book by Jesse Storimer on Ruby threads.
